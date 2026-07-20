@@ -1,18 +1,16 @@
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
-import Post from "./pages/Post";
 import Feed from "./pages/Feed";
-import Users from "./pages/Users";
+import Post from "./pages/Post";
 import Notifications from "./pages/Notifications";
+import Users from "./pages/Users";
 import Owner from "./pages/Owner";
-import "./App.css";
+import Chat from "./pages/Chat";
 
-
-function App(){
-
-  return(
-
-    <div className="app">
+function App() {
+  return (
+    <div>
+      <h1>Nexora 🚀</h1>
 
       <Login />
 
@@ -40,11 +38,12 @@ function App(){
 
       <Owner />
 
+      <hr />
+
+      <Chat />
+
     </div>
-
   );
-
 }
-
 
 export default App;
