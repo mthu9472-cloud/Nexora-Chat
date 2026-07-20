@@ -1,0 +1,175 @@
+import { useEffect, useState } from "react";
+import { auth, db } from "../firebase/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+
+
+function Profile(){
+
+const [profile,setProfile]=useState(null);
+const [followers,setFollowers]=useState([]);
+const [following,setFollowing]=useState([]);
+
+
+useEffect(()=>{
+
+const unsub = onAuthStateChanged(auth,(user)=>{
+
+ if(user){
+   loadProfile(user.uid);
+ }
+
+});
+
+
+return ()=>unsub();
+
+
+},[]);
+
+
+
+async function loadProfile(uid){
+
+
+const snap = await getDoc(
+ doc(db,"users",uid)
+);
+
+
+if(!snap.exists()) return;
+
+
+const data=snap.data();
+
+
+setProfile(data);
+
+
+
+let followings=[];
+
+
+if(data.followingList){
+
+
+for(let id of data.followingList){
+
+
+ const userSnap=await getDoc(
+  doc(db,"users",id)
+ );
+
+
+ if(userSnap.exists()){
+
+ followings.push(userSnap.data());
+
+ }
+
+
+}
+
+
+}
+
+
+setFollowing(followings);
+
+
+
+let followersData=[];
+
+
+if(data.followersList){
+
+
+for(let id of data.followersList){
+
+
+const userSnap=await getDoc(
+ doc(db,"users",id)
+);
+
+
+if(userSnap.exists()){
+
+followersData.push(userSnap.data());
+
+}
+
+
+}
+
+
+}
+
+
+setFollowers(followersData);
+
+
+}
+
+
+
+return(
+
+<div>
+
+<h1>Nexora Profile 👤</h1>
+
+
+{
+profile &&
+
+<h2>
+👤 {profile.username}
+</h2>
+
+}
+
+
+
+<h3>
+Followers 👥 {followers.length}
+</h3>
+
+
+{
+followers.map((u,i)=>(
+
+<p key={i}>
+👤 {u.username}
+</p>
+
+))
+}
+
+
+
+<h3>
+Following 👥 {following.length}
+</h3>
+
+
+{
+following.map((u,i)=>(
+
+<p key={i}>
+👤 {u.username}
+</p>
+
+))
+}
+
+
+
+</div>
+
+);
+
+
+}
+
+
+export default Profile;
