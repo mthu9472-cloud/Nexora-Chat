@@ -6,14 +6,19 @@ import {
   onSnapshot,
   query,
   orderBy,
+  where,
   serverTimestamp
 } from "firebase/firestore";
 
 function Chat() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [chatUser, setChatUser] = useState(null);
 
   useEffect(() => {
+    if(!auth.currentUser){
+  return;
+}    
     const q = query(
       collection(db, "messages"),
       orderBy("time", "asc")
@@ -37,6 +42,7 @@ function Chat() {
     await addDoc(collection(db, "messages"), {
       text: message,
       username: auth.currentUser?.displayName || auth.currentUser?.email || "Guest",
+      users: [auth.currentUser.uid],
       time: serverTimestamp()
     });
 
@@ -46,7 +52,7 @@ function Chat() {
   return (
     <div style={{maxWidth:"500px", margin:"auto"}}>
 
-      <h2>💬 Nexora Chat</h2>
+      <h2>💬 Nexora Chat TEST</h2>
 
       <div>
         {messages.map((msg) => {

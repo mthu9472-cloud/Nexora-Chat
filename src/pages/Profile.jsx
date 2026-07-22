@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { auth, db } from "../firebase/firebase";
+
 import {
   doc,
   getDoc,
@@ -8,17 +9,23 @@ import {
   getDocs
 } from "firebase/firestore";
 
+
 function Profile(){
 
   const [username,setUsername] = useState("");
   const [bio,setBio] = useState("");
   const [photo,setPhoto] = useState("");
+  const [email,setEmail] = useState("");
   const [posts,setPosts] = useState([]);
 
+
   useEffect(()=>{
+
     loadProfile();
     loadPosts();
+
   },[]);
+
 
 
   async function loadProfile(){
@@ -27,9 +34,11 @@ function Profile(){
 
     if(!user) return;
 
+
     const snap = await getDoc(
       doc(db,"users",user.uid)
     );
+
 
     if(snap.exists()){
 
@@ -38,10 +47,12 @@ function Profile(){
       setUsername(data.username || "");
       setBio(data.bio || "");
       setPhoto(data.photo || "");
+      setEmail(data.email || user.email);
 
     }
 
   }
+
 
 
   async function loadPosts(){
@@ -50,15 +61,19 @@ function Profile(){
 
     if(!user) return;
 
+
     const snap = await getDocs(
       collection(db,"posts")
     );
 
+
     let data=[];
+
 
     snap.forEach((item)=>{
 
       const post=item.data();
+
 
       if(post.uid === user.uid){
 
@@ -71,23 +86,30 @@ function Profile(){
 
     });
 
+
     setPosts(data);
 
   }
+
 
 
   async function saveProfile(){
 
     const user = auth.currentUser;
 
+
     if(!user){
+
       alert("Login First");
       return;
+
     }
 
 
     await setDoc(
+
       doc(db,"users",user.uid),
+
       {
         username,
         bio,
@@ -95,15 +117,18 @@ function Profile(){
         email:user.email,
         uid:user.uid
       },
+
       {
         merge:true
       }
+
     );
 
 
     alert("Profile Saved");
 
   }
+
 
 
   return(
@@ -113,10 +138,36 @@ function Profile(){
       <h1>Nexora Profile 👤</h1>
 
 
+      <div>
+
+        {photo && (
+          <img 
+            src={photo}
+            width="120"
+            alt="profile"
+          />
+        )}
+
+        <h2>{username}</h2>
+
+        <p>📧 {email}</p>
+
+        <p>{bio}</p>
+
+      </div>
+
+
+      <hr/>
+
+
       <input
-      placeholder="Username"
-      value={username}
-      onChange={(e)=>setUsername(e.target.value)}
+
+        placeholder="Username"
+
+        value={username}
+
+        onChange={(e)=>setUsername(e.target.value)}
+
       />
 
 
@@ -124,9 +175,13 @@ function Profile(){
 
 
       <input
-      placeholder="Photo URL"
-      value={photo}
-      onChange={(e)=>setPhoto(e.target.value)}
+
+        placeholder="Photo URL"
+
+        value={photo}
+
+        onChange={(e)=>setPhoto(e.target.value)}
+
       />
 
 
@@ -134,9 +189,13 @@ function Profile(){
 
 
       <textarea
-      placeholder="Bio"
-      value={bio}
-      onChange={(e)=>setBio(e.target.value)}
+
+        placeholder="Bio"
+
+        value={bio}
+
+        onChange={(e)=>setBio(e.target.value)}
+
       />
 
 
@@ -144,26 +203,36 @@ function Profile(){
 
 
       <button onClick={saveProfile}>
+
         Save Profile
+
       </button>
+
 
 
       <h2>My Posts 📝</h2>
 
+
       {
+
         posts.map((post)=>(
 
           <div key={post.id}>
 
-            <p>{post.text}</p>
+            <p>
+              💬 {post.text}
+            </p>
 
-            <p>❤️ {post.likes || 0}</p>
+            <p>
+              ❤️ {post.likes || 0} Likes
+            </p>
 
             <hr/>
 
           </div>
 
         ))
+
       }
 
 

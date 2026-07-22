@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { db, auth } from "../firebase/firebase";
 import {
-  collection,
-  getDocs,
-  deleteDoc,
-  doc,
-  updateDoc,
-  arrayUnion,
-  addDoc
+collection,
+query,
+orderBy,
+onSnapshot,
+deleteDoc,
+doc,
+updateDoc,
+arrayUnion,
+addDoc
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -39,45 +41,48 @@ function Feed(){
 
 
 
-  async function loadPosts(){
+async function loadPosts(){
 
-    const snap = await getDocs(collection(db,"posts"));
+ const q = query(
+   collection(db,"posts"),
+   orderBy("time","desc")
+ );
 
-    let data=[];
+ onSnapshot(q,(snap)=>{
 
-    snap.forEach((item)=>{
+   let data=[];
 
-      data.push({
+   snap.forEach((item)=>{
 
-        id:item.id,
+     data.push({
+       id:item.id,
+       ...item.data()
+     });
 
-        ...item.data()
+   });
 
-      });
+   setPosts(data);
 
-    });
+ });
 
+ loadComments();
+ loadUsers();
 
-    setPosts(data);
-
-    loadComments();
-    loadUsers();
-
-  }
+}
 
 
 
-  async function loadComments(){
+async function loadComments(){
 
-    const snap = await getDocs(collection(db,"comments"));
+  const q = query(collection(db,"comments"));
+
+  onSnapshot(q,(snap)=>{
 
     let data={};
-
 
     snap.forEach((item)=>{
 
       const c=item.data();
-
 
       if(!data[c.postId]){
 
@@ -85,16 +90,15 @@ function Feed(){
 
       }
 
-
       data[c.postId].push(c);
-
 
     });
 
-
     setComments(data);
 
-  }
+  });
+
+}
 
 
 
@@ -193,7 +197,7 @@ function Feed(){
     }
 
 
-    loadPosts();
+
 
   }
 
@@ -312,7 +316,6 @@ function Feed(){
       alert("Post Deleted");
 
 
-      loadPosts();
 
 
     }else{
@@ -476,12 +479,8 @@ function Feed(){
 
     </div>
 
-
   );
 
-
 }
-
-
 
 export default Feed;

@@ -11,11 +11,10 @@ function Post(){
 
     const user = auth.currentUser;
 
-    if(!user){
-      alert("Login first");
-      return;
-    }
-
+if(!text.trim()){
+  alert("Write something first");
+  return;
+}
     await addDoc(collection(db,"posts"),{
 
       uid:user.uid,
