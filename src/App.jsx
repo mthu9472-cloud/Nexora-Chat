@@ -2,8 +2,13 @@ import { Routes, Route } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 
-import { auth } from "./firebase/firebase";
+import { auth, db } from "./firebase/firebase";
 
+import {
+   doc,
+  updateDoc,
+  serverTimestamp
+} from "firebase/firestore";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Feed from "./pages/Feed";
@@ -21,12 +26,52 @@ function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
+  const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    setUser(currentUser);
+ 
+       
 
-    return () => unsubscribe();
-  }, []);
+    if(currentUser){
+      await updateDoc(doc(db,"users",currentUser.uid),{
+        online:true,
+        lastSeen:serverTimestamp()
+      });
+    }
+    
+
+  });
+
+  const handleVisibility = async () => {
+
+  if(auth.currentUser){
+
+    await updateDoc(
+      doc(db,"users",auth.currentUser.uid),
+      {
+        online: document.visibilityState === "visible",
+        lastSeen: serverTimestamp()
+      }
+    );
+
+  }
+
+};
+
+document.addEventListener(
+  "visibilitychange",
+  handleVisibility
+);
+
+return () => {
+  unsubscribe();
+
+  document.removeEventListener(
+    "visibilitychange",
+    handleVisibility
+  );
+};
+
+}, []);
 
 
   return (

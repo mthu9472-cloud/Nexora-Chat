@@ -9,7 +9,8 @@ deleteDoc,
 doc,
 updateDoc,
 arrayUnion,
-addDoc
+addDoc,
+getDocs
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -201,8 +202,37 @@ async function loadComments(){
 
   }
 
+  async function reactPost(post,type){
+  
+  alert(post.id + " " + type);
+
+  if(!user){
+
+    alert("Login First");
+
+    return;
+
+  }
 
 
+  let reactions = post.reactions || {
+    like:0,
+    love:0,
+    haha:0,
+    care:0
+  };
+
+
+  reactions[type] = (reactions[type] || 0) + 1;
+
+
+  await updateDoc(doc(db,"posts",post.id),{
+
+    reactions:reactions
+
+  });
+
+}
 
   async function addComment(postId){
 
@@ -370,8 +400,17 @@ async function loadComments(){
 
             <br/>
 
+            
+            <div>
+👍 {post.reactions?.like || 0}
+❤️ {post.reactions?.love || 0}
+🤣 {post.reactions?.haha || 0}
+🥰 {post.reactions?.care || 0}
+</div>
 
-            <b>Liked by ❤️</b>
+<br/>
+
+          <b>Liked by ❤️</b>
 
             {
               post.likedBy?.map((uid,index)=>(
@@ -391,11 +430,21 @@ async function loadComments(){
             <br/><br/>
 
 
-            <button onClick={()=>likePost(post)}>
+            <button onClick={()=>reactPost(post,"like")}>
+  👍 Like
+</button>
 
-              ❤️ Like
+<button onClick={()=>reactPost(post,"love")}>
+  ❤️ Love
+</button>
 
-            </button>
+<button onClick={()=>reactPost(post,"haha")}>
+  🤣 Haha
+</button>
+
+<button onClick={()=>reactPost(post,"care")}>
+  🥰 Care
+</button>
 
 
             <button onClick={()=>deletePost(post)}>

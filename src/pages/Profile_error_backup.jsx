@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabase/supabase";
 import { auth, db } from "../firebase/firebase";
 import {
   doc,
@@ -9,16 +8,12 @@ import {
   getDocs
 } from "firebase/firestore";
 
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Profile.css";
 
 function Profile(){
 
   const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-
-  const profileUid = searchParams.get("uid");
-  const isMyProfile = !profileUid || profileUid === auth.currentUser?.uid;
 
   const [username,setUsername] = useState("");
   const [bio,setBio] = useState("");
@@ -36,110 +31,67 @@ function Profile(){
   const [usersData,setUsersData] = useState({});
 
 
-  async function uploadPhoto(e){
+  useEffect(()=>{
 
-  const file = e.target.files[0];
+    loadProfile();
+    loadPosts();
+    loadUsers();
 
-  if(!file) return;
+  },[]);
 
-
-  const user = auth.currentUser;
-
-  if(!user){
-    alert("Login First");
-    return;
-  }
-
-
-  const fileName =
-    "profiles/" + user.uid + "_" + file.name;
-
-
-  const { error } = await supabase
-    .storage
-    .from("nexora-images")
-    .upload(fileName, file, {
-      upsert:true
-    });
-
-
-  if(error){
-    console.log(error);
-    alert(JSON.stringify(error));
-    return;
-  }
-
-
-  const { data } =
-    supabase
-    .storage
-    .from("nexora-images")
-    .getPublicUrl(fileName);
-
-
-  setPhoto(data.publicUrl);
-alert(data.publicUrl);
-
-  console.log("PHOTO URL =", data.publicUrl);
-
-  alert("Photo uploaded");
-
-}
 
 
   async function loadProfile(){
 
-  const user = auth.currentUser;
+    const user = auth.currentUser;
 
-  if(!user) return;
-
-
-  const uid = profileUid || user.uid;
+    if(!user) return;
 
 
-  const snap = await getDoc(
-    doc(db,"users",uid)
-  );
-
-
-  if(snap.exists()){
-
-    const data = snap.data();
-
-
-    setUsername(data.username || "");
-
-    setBio(data.bio || "");
-
-    setPhoto(data.photo || "");
-
-    setEmail(
-      data.email || user.email
+    const snap = await getDoc(
+      doc(db,"users",user.uid)
     );
 
 
-    setFollowers(
-      data.followers || 0
-    );
+    if(snap.exists()){
+
+      const data = snap.data();
 
 
-    setFollowing(
-      data.following || 0
-    );
+      setUsername(data.username || "");
+      setBio(data.bio || "");
+      setPhoto(data.photo || "");
+
+      setEmail(
+        data.email || user.email
+      );
 
 
-    setFollowersList(
-      data.followersList || []
-    );
+      setFollowers(
+        data.followers || 0
+      );
 
 
-    setFollowingList(
-      data.followingList || []
-    );
+      setFollowing(
+        data.following || 0
+      );
+
+
+      setFollowersList(
+        data.followersList || []
+      );
+
+
+      setFollowingList(
+        data.followingList || []
+      );
+
+    }
 
   }
 
-}
+
+
   async function loadUsers(){
 
     const snap = await getDocs(
@@ -202,7 +154,7 @@ alert(data.publicUrl);
   async function saveProfile(){
 
     const user = auth.currentUser;
-    console.log("CURRENT PHOTO =", photo);
+
 
     if(!user){
 
@@ -238,19 +190,7 @@ alert(data.publicUrl);
   }
 
 
-  useEffect(()=>{
 
-  const start = async()=>{
-
-    await loadProfile();
-    await loadPosts();
-    await loadUsers();
-
-  };
-
-  start();
-
-},[profileUid]);
   return(
 
     <div className="profile">
@@ -317,13 +257,9 @@ alert(data.publicUrl);
 
         <div key={uid} className="user-card">
 
-          <button
-  onClick={()=>{
-    navigate("/profile?uid="+uid)
-  }}
->
-  👤 {usersData[uid]?.username || uid}
-</button>
+          <p>
+            👤 {usersData[uid]?.username || uid}
+          </p>
 
 
           <button
@@ -406,7 +342,6 @@ alert(data.publicUrl);
 
       <hr/>
 
-      {isMyProfile && (
       <div className="edit-box">
       <p>Username</p>
       <input
@@ -426,10 +361,16 @@ alert(data.publicUrl);
 
 
       <input
-  type="file"
-  accept="image/*"
-  onChange={uploadPhoto}
-/>
+
+        placeholder="Photo URL"
+
+        value={photo}
+
+        onChange={(e)=>
+          setPhoto(e.target.value)
+        }
+
+      />
 
 
       <br/><br/>
@@ -455,15 +396,12 @@ alert(data.publicUrl);
 
         Save Profile
 
-              </button>
+      </button>
 
-      </div>
 
-    )}
+    </div>
 
-  </div>
-
-);
+  );
 
 }
 

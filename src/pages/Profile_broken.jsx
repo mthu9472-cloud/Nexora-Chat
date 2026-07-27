@@ -35,13 +35,11 @@ function Profile(){
 
   const [usersData,setUsersData] = useState({});
 
-
   async function uploadPhoto(e){
 
   const file = e.target.files[0];
 
   if(!file) return;
-
 
   const user = auth.currentUser;
 
@@ -50,96 +48,76 @@ function Profile(){
     return;
   }
 
-
-  const fileName =
-    "profiles/" + user.uid + "_" + file.name;
-
-
-  const { error } = await supabase
-    .storage
-    .from("nexora-images")
-    .upload(fileName, file, {
-      upsert:true
-    });
+  .upload(fileName, file, {
+    upsert:true
+  });
 
 
-  if(error){
-    console.log(error);
-    alert(JSON.stringify(error));
-    return;
-  }
+if(error){
+  console.log(error);
+  alert(JSON.stringify(error));
+  return;
+}
 
+console.log("UPLOAD OK", fileName);
 
-  const { data } =
-    supabase
-    .storage
-    .from("nexora-images")
-    .getPublicUrl(fileName);
-
-
-  setPhoto(data.publicUrl);
-alert(data.publicUrl);
-
-  console.log("PHOTO URL =", data.publicUrl);
+  
+console.log("PHOTO URL =", data.publicUrl);
 
   alert("Photo uploaded");
 
 }
-
-
   async function loadProfile(){
 
-  const user = auth.currentUser;
+    const user = auth.currentUser;
 
-  if(!user) return;
+    if(!user) return;
 
-
-  const uid = profileUid || user.uid;
-
-
-  const snap = await getDoc(
-    doc(db,"users",uid)
-  );
-
-
-  if(snap.exists()){
-
-    const data = snap.data();
-
-
-    setUsername(data.username || "");
-
-    setBio(data.bio || "");
-
-    setPhoto(data.photo || "");
-
-    setEmail(
-      data.email || user.email
+    const uid = profileUid || user.uid;
+    const snap = await getDoc(
+      doc(db,"users",uid)
     );
 
 
-    setFollowers(
-      data.followers || 0
-    );
+    if(snap.exists()){
+
+      const data = snap.data();
 
 
-    setFollowing(
-      data.following || 0
-    );
+      setUsername(data.username || "");
+      setBio(data.bio || "");
+      setPhoto(data.photo || "");
+
+      setEmail(
+        data.email || user.email
+      );
 
 
-    setFollowersList(
-      data.followersList || []
-    );
+      setFollowers(
+        data.followers || 0
+      );
 
 
-    setFollowingList(
-      data.followingList || []
-    );
+      setFollowing(
+        data.following || 0
+      );
+
+
+      setFollowersList(
+        data.followersList || []
+      );
+
+
+      setFollowingList(
+        data.followingList || []
+      );
+
+    }
 
   }
 
-}
+
+
   async function loadUsers(){
 
     const snap = await getDocs(

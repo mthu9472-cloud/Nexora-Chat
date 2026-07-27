@@ -109,3 +109,92 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+.profile{
+  max-width:600px;
+  margin:auto;
+  padding:20px;
+}
+
+.profile-img{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+.user-card{
+  background:#f2f2f2;
+  padding:12px;
+  margin:10px 0;
+  border-radius:12px;
+}
+
+.post-card{
+  background:#fff;
+  padding:15px;
+  margin:12px 0;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+button{
+  padding:8px 15px;
+  border-radius:10px;
+  cursor:pointer;
+}
+.stats{
+  display:flex;
+  gap:15px;
+  margin:20px 0;
+}
+
+.stat-box{
+  flex:1;
+  padding:15px;
+  background:#eee;
+  border-radius:15px;
+  text-align:center;
+}
+.profile{
+  max-width:600px;
+  margin:auto;
+  padding:20px;
+  background:#fafafa;
+  border-radius:20px;
+}
+
+.profile h1{
+  text-align:center;
+}
+
+.profile h2{
+  text-align:center;
+}
+
+.profile button{
+  background:#222;
+  color:white;
+  border:none;
+  margin-top:10px;
+}
+
+.stats{
+  display:flex;
+  gap:15px;
+  margin:20px 0;
+}
+
+.stat-box{
+  flex:1;
+  padding:15px;
+  background:white;
+  border-radius:15px;
+  text-align:center;
+}
+.post-card{
+  background:white;
+  padding:15px;
+  margin:12px 0;
+  border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}

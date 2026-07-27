@@ -1,5 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../firebase/firebase";
 
 import { auth } from "../firebase/firebase";
 
@@ -9,13 +11,25 @@ function Navbar() {
   const navigate = useNavigate();
 
 
-  function logout(){
+  async function logout(){
 
-    signOut(auth);
+  if(auth.currentUser){
 
-    navigate("/");
+    await updateDoc(
+      doc(db,"users",auth.currentUser.uid),
+      {
+        online:false,
+        lastSeen:serverTimestamp()
+      }
+    );
 
   }
+
+  await signOut(auth);
+
+  navigate("/");
+
+}
 
 
   return (
