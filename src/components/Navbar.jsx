@@ -48,6 +48,9 @@ function Navbar() {
 
       <Link to="/profile">👤 Profile</Link>{" "}
 
+      <Link to="/notifications">🔔 Notifications</Link>{" "}
+
+
       <button onClick={logout}>
         🚪 Logout
       </button>
